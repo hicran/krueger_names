@@ -1,0 +1,54 @@
+<header>
+  <h1>
+    <span class="back"><%= link_to "〈".html_safe, :back, title: "Back" %></span>
+    Names
+  </h1>
+</header>
+
+<section id="searchbox">
+<%= form_tag search_path, method: 'get' do %>
+  <input type="text" name="q" value="<%= params[:q] %>" id="q" autofocus="autofocus" placeholder="start typing to search..." tabindex="0" />
+<% end %>
+</section>
+
+<section class="names">
+  <% @names.each do |name| %>
+    <%= content_tag :div, class: 'name search result clearfix' do %>
+      <h2>
+        <span class="name"><%= name.name %></span>
+        <small><strong><%= name.origins.join(', ') %></strong></small>
+        <small><strong><%= name.total_occurence %></strong></small>
+        <small><strong><%= name.meaning %></strong></small>
+      </h2>
+    <% end %>
+  <% end %>
+</section>
+
+
+<% if @names.empty? %>
+<section class="no-results">
+  <p>The search hasn't returned any results...</p>
+</section>
+<% end %>
+
+<script>
+$.widget( "custom.suggest", $.ui.autocomplete, {
+    _renderMenu: function( ul, items ) {
+      $.each( items, function( index, item ) {
+        var category = ul.append( "<li class='ui-autocomplete-category'>" + item.label + "</li>" );
+
+        $.each( item.value, function( index, item ) {
+          var li = $('<li class="ui-autocomplete-item"><a href="<%= Rails.application.config.relative_url_root %>'+ item.url +'">'+ item.text +'</a></li>').data('ui-autocomplete-item', item )
+          category.append(li)
+        } )
+      });
+    }
+  });
+
+$( "#q" ).suggest({
+  source: '<%= suggest_path %>',
+  select: function(event, ui) {
+    document.location.href = '<%= Rails.application.config.relative_url_root %>'+ui.item.url
+  }
+});
+</script>

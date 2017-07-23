@@ -1,0 +1,73 @@
+<header>
+  <h1>
+    Names
+    <%= button_to 'New Name', new_name_path, method: 'get', tabindex: 5 %>
+  </h1>
+</header>
+
+<section>
+<% if @from > 0 %>
+    <%= link_to 'Previous Page', names_path(from: @from - 1000) %>
+<% end %>
+<% if @from < 20000 %>
+  <%= link_to 'Next Page', names_path(from: @from + 1000) %>
+<% end %>
+</section>
+
+<section id="searchbox">
+<%= form_tag search_path, method: 'get' do %>
+  <input type="text" name="q" value="<%= params[:q] %>" id="q" autofocus="autofocus" placeholder="start typing to search..." tabindex="0" />
+<% end %>
+</section>
+
+<section class="names">
+  <% @names.each do |name| %>
+    <%= div_for name, class: 'result clearfix' do %>
+      <h2>
+        <span class="name"><%= name.name %></span>
+        <small><strong><%= name.origins.join(', ') %></strong></small>
+        <small><strong><%= name.total_occurence %></strong></small>
+        <small><strong><%= name.meaning %></strong></small>
+      </h2>
+    <% end %>
+  <% end %>
+</section>
+
+<% if @names.empty? %>
+<section class="no-results">
+  <p>The search hasn't returned any results...</p>
+</section>
+<% end %>
+<section>
+  <% if @from > 0 %>
+      <%= link_to 'Previous Page', names_path(from: @from - 1000) %>
+  <% end %>
+  <% if @from < 20000 %>
+      <%= link_to 'Next Page', names_path(from: @from + 1000) %>
+  <% end %>
+</section>
+
+
+<script>
+$.widget( "custom.suggest", $.ui.autocomplete, {
+    _renderMenu: function( ul, items ) {
+      $.each( items, function( index, item ) {
+        var category = ul.append( "<li class='ui-autocomplete-category'>" + item.label + "</li>" );
+
+        $.each( item.value, function( index, item ) {
+          var li = $('<li class="ui-autocomplete-item"><a href="<%= Rails.application.config.relative_url_root %>'+ item.url +'">'+ item.text +'</a></li>').data('ui-autocomplete-item', item )
+          category.append(li)
+        } )
+      });
+    }
+  });
+
+$( "#q" ).suggest({
+  source: '<%= suggest_path %>',
+  select: function(event, ui) {
+    document.location.href = '<%= Rails.application.config.relative_url_root %>'+ui.item.url
+  }
+});
+</script>
+
+<script>$('img.band').error(function(){ $(this).attr('src', '/images/blank_name.png'); });</script>
