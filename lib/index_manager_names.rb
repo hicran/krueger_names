@@ -5,7 +5,7 @@ class IndexManagerNames
     client     = Name.gateway.client
     index_name = Name.index_name
 
-    client.indices.delete index: index_name rescue nil if options[:force]
+    client.indices.delete index: index_name rescue nil
 
     settings = Name.settings.to_hash.merge(Name.settings.to_hash)
     mappings = Name.mappings.to_hash.merge(Name.mappings.to_hash)
@@ -14,13 +14,10 @@ class IndexManagerNames
                           body: {
                             settings: settings.to_hash,
                             mappings: mappings.to_hash }
-  end
-
-  def self.import_from_data
     create_index force: true
 
     names = {}
-    Dir.glob(File.join(File.dirname(__FILE__), '../data/names_by_state', "*.TXT")).each do |file_name|
+    Dir.glob(File.join(File.dirname(__FILE__), '../../data/names_by_state', "*.TXT")).each do |file_name|
       puts file_name
       File.open(file_name).each_line do |line|
         state,gender,year,name,occurence = line.strip.split(",")
@@ -46,7 +43,7 @@ class IndexManagerNames
       end
       puts "finished #{file_name}"
     end
-    Dir.glob(File.join(File.dirname(__FILE__), '../data/names_by_country', "*.txt")).each do |file_name|
+    Dir.glob(File.join(File.dirname(__FILE__), '../../data/names_by_country', "*.txt")).each do |file_name|
       puts file_name
       File.open(file_name).each_line do |line|
         name = line.strip
@@ -57,7 +54,7 @@ class IndexManagerNames
       puts "finished #{file_name}"
     end
 
-    File.open(File.join(File.dirname(__FILE__), '../data/names_by_letter/all_names.csv')).each_line do |line|
+    File.open(File.join(File.dirname(__FILE__), '../../data/names_by_letter/all_names.csv')).each_line do |line|
       name,gender,origin,meaning = line.strip.split("|")
       origins = origin.split(',').map{|o| o.strip}
       name = name.strip.capitalize
@@ -68,7 +65,7 @@ class IndexManagerNames
       names[name][:meaning] = meaning
     end
 
-    File.open(File.join(File.dirname(__FILE__), '../data/names_by_meaning/all_names.csv')).each_line do |line|
+    File.open(File.join(File.dirname(__FILE__), '../../data/names_by_meaning/all_names.csv')).each_line do |line|
       puts line
       name,origin,meaning, other_names = line.strip.split("|")
       other_names = other_names ? other_names.split(',').map{|o| o.strip} : []
